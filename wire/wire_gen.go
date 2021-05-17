@@ -7,9 +7,9 @@ package main
 
 // Injectors from wire.go:
 
-func InitMission(name string) Mission {
-	player := NewPlayer(name)
-	monster := NewMonster()
-	mission := NewMission(player, monster)
-	return mission
+func InitializeEvent(name string) Event {
+	message := NewMessage(name)
+	greeter := NewGreeter(message)
+	event := NewEvent(greeter)
+	return event
 }

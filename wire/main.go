@@ -1,41 +1,42 @@
 package main
 
 import "fmt"
-type Monster struct {
-	Name string
+
+type Message struct {
+	msg string
+}
+type Greeter struct {
+	Message Message
+}
+type Event struct {
+	Greeter Greeter
+}
+// NewMessage Message的构造函数
+func NewMessage(msg string) Message {
+	return Message{
+		msg:msg,
+	}
+}
+// NewGreeter Greeter构造函数
+func NewGreeter(m Message) Greeter {
+	return Greeter{Message: m}
+}
+// NewEvent Event构造函数
+func NewEvent(g Greeter) Event {
+	return Event{Greeter: g}
+}
+func (e Event) Start() {
+	msg := e.Greeter.Greet()
+	fmt.Println(msg)
+}
+func (g Greeter) Greet() Message {
+	return g.Message
 }
 
-func NewMonster() Monster {
-	return Monster{Name: "kitty"}
-}
 
-type Player struct {
-	Name string
-}
 
-func NewPlayer(name string) Player {
-	return Player{Name: name}
-}
-
-type Mission struct {
-	Player  Player
-	Monster Monster
-}
-
-func NewMission(p Player, m Monster) Mission {
-	return Mission{p, m}
-}
-
-func (m Mission) Start() {
-	fmt.Printf("%s defeats %s, world peace!\n", m.Player.Name, m.Monster.Name)
-}
-
+// 使用wire前
 func main() {
-	//monster := NewMonster()
-	//player := NewPlayer("dj")
-	//mission := NewMission(player, monster)
-	//
-	//mission.Start()
-	mission := InitMission("dj")
-	mission.Start()
+	e := InitializeEvent("hello_world")
+	e.Start()
 }
