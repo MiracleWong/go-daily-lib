@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var logger *zap.Logger
@@ -17,7 +19,10 @@ func main() {
 }
 
 func InitLogger() {
-	logger, _ = zap.NewProduction()
+	writeSyncer := getLogWriter()
+	encoder := getEncoder()
+	core := zapcore.NewCore(encoder, writeSyncer, zapcore.DebugLevel)
+	logger := zap.New(core)
 	sugarLogger = logger.Sugar()
 }
 
@@ -25,11 +30,18 @@ func simpleHttpGet(url string) {
 	sugarLogger.Debugf("Trying to hit GET request for %s", url)
 	resp, err := http.Get(url)
 	if err != nil {
-		// 日志记录器的语法
-		// func (log *Logger) MethodXXX(msg string, fields ...Field)
 		sugarLogger.Errorf("Error fetching URL %s : Error = %s", url, err)
 	} else {
 		sugarLogger.Infof("Success! statusCode = %s for URL %s", resp.Status, url)
 		resp.Body.Close()
 	}
+}
+
+func getEncoder() zapcore.Encoder {
+	return zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+}
+
+func getLogWriter() zapcore.WriteSyncer {
+	file, _ := os.Create("./test.log")
+	return zapcore.AddSync(file)
 }
