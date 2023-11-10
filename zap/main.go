@@ -1,28 +1,37 @@
 package main
 
 import (
-	"log"
 	"net/http"
-	"os"
+
+	"go.uber.org/zap"
 )
 
+var logger *zap.Logger
+
 func main() {
-	SetupLogger()
+	InitLogger()
+	defer logger.Sync()
 	simpleHttpGet("www.baidu.com")
 	simpleHttpGet("http://www.baidu.com")
 }
 
-func SetupLogger() {
-	logFileLocation, _ := os.OpenFile("./test.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0744)
-	log.SetOutput(logFileLocation)
+func InitLogger() {
+	logger, _ = zap.NewProduction()
 }
 
 func simpleHttpGet(url string) {
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("Error fetching url %s : %s", url, err.Error())
+		// 日志记录器的语法
+		// func (log *Logger) MethodXXX(msg string, fields ...Field)
+		logger.Error(
+			"Error fetching url..",
+			zap.String("url", url),
+			zap.Error(err))
 	} else {
-		log.Printf("Status Code for %s : %s", url, resp.Status)
+		logger.Info("Success..",
+			zap.String("statusCode", resp.Status),
+			zap.String("url", url))
 		resp.Body.Close()
 	}
 }
