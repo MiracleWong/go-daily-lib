@@ -38,7 +38,7 @@ func simpleHttpGet(url string) {
 }
 
 func getEncoder() zapcore.Encoder {
-	return zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
+	return zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig())
 }
 
 func getLogWriter() zapcore.WriteSyncer {
